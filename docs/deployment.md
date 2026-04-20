@@ -123,6 +123,26 @@ Add the following secrets to your GitHub repository (`Settings > Secrets and var
 | `D1_DATABASE_ID` | yes | Your production D1 database ID |
 | `D1_DATABASE_ID_DEV` | no | Dev D1 database ID (required only if you use the `Deploy Dev` workflow on the `dev` branch) |
 
+#### How to Get Your Cloudflare Account ID
+
+1. Log in to the [Cloudflare Dashboard](https://dash.cloudflare.com/)
+2. Select your account
+3. Your Account ID is displayed in the right sidebar of the Overview page, or in the URL: `https://dash.cloudflare.com/<account-id>`
+
+#### How to Get Your Cloudflare API Token
+
+The `CLOUDFLARE_API_TOKEN` requires the following permissions:
+- **Edit Cloudflare Workers**: Required for deploying the Worker
+- **Edit D1**: Required for database migrations and backups
+- **Edit KV**: Required for attachments storage (if using KV)
+
+1. Visit [https://dash.cloudflare.com/profile/api-tokens](https://dash.cloudflare.com/profile/api-tokens)
+2. Click **Create Token**
+3. Use the **Edit Cloudflare Workers** template
+4. Add **Account** → **D1** under `Permissions`
+5. Select `Account Resources` and `Zone Resources`
+6. Click **Continue to Summary** and then **Create Token**
+
 ### Optional Variables
 
 #### Web Vault frontend version
@@ -148,20 +168,6 @@ To avoid bundling a large JSON file into the Worker, the dataset can be stored i
 
 If you skip seeding, `/api/settings/domains` and `/api/sync` will return `globalEquivalentDomains: []`.
 
-> [!NOTE]
-> The `CLOUDFLARE_API_TOKEN` must have **both** Worker and D1 permissions:
-> - **Edit Cloudflare Workers** - Required for deploying the Worker
-> - **Edit D1** - Required for database migrations and backups
-> - **Edit KV** - Required for attachments storage (if using KV)
-> 
-> When creating the API token in Cloudflare Dashboard, make sure to add both permissions under "Account" → "Cloudflare Workers" and "Account" → "D1".
-
-### How to Get Your Cloudflare Account ID
-
-1. Log in to the [Cloudflare Dashboard](https://dash.cloudflare.com/)
-2. Select your account
-3. Your Account ID is displayed in the right sidebar of the Overview page, or in the URL: `https://dash.cloudflare.com/<account-id>`
-
 ### Usage
 
 1. **Fork or clone the repository** to your GitHub account
@@ -185,11 +191,14 @@ If you skip seeding, `/api/settings/domains` and `/api/sync` will return `global
 
 5. **Monitor the deployment** in the Actions tab of your repository
 
-6. **Set up tables in database manually** in the Cloudflare dashboard
-
-7. **Set environment variables** as `secret` in the Cloudflare dashboard (following the command line deployment steps):
-   - `ALLOWED_EMAILS` your-email@example.com (supports glob patterns like `*@example.com`)
+6. **Set environment variables** as `secret` in the Cloudflare dashboard (following the command line deployment steps):
+   - `ALLOWED_EMAILS` your-email@example.com (supports glob patterns like `*@example.com`, comma separated)
    - `JWT_SECRET` a long random string
    - `JWT_REFRESH_SECRET` a long random string
+
+> [!IMPORTANT]
+> The server can't work without these three environment variables. If you forget to set them, the server will crash.
+
+If you want to show a 'Create account' button in frontend, you can add `DISABLE_USER_REGISTRATION` as `text` and set it to `false`. Check [Environment Variables](../README.md#environment-variables) for more details.
 
 By default, the `*.workers.dev` domain is disabled, since it may throw 1101 error. It's highly recommended to use a custom domain instead; see [Configure Custom Domain](../README.md#configure-custom-domain-optional) for more details.
